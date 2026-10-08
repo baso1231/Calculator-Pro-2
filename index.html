@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মডার্ন ক্যালকুলেটর</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f6fa;
+        }
+
+        .calculator {
+            background-color: #ffffff;
+            padding: 25px 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 350px;
+        }
+
+        .display-container {
+            margin-bottom: 25px;
+            text-align: right;
+            padding: 10px;
+        }
+
+        #history {
+            font-size: 1rem;
+            color: #b2bec3;
+            min-height: 24px;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        #display {
+            width: 100%;
+            border: none;
+            font-size: 2.5rem;
+            text-align: right;
+            color: #2d3436;
+            background: transparent;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            background-color: #f1f2f6;
+            color: #2d3436;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:hover {
+            background-color: #dfe4ea;
+        }
+
+        .text-red {
+            color: #ff6b6b;
+        }
+
+        .operator {
+            color: #ff6b6b;
+            font-size: 1.4rem;
+        }
+
+        .equal {
+            background-color: #ff4757;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .equal:hover {
+            background-color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display-container">
+            <div id="history"></div>
+            <input type="text" id="display" value="0" readonly>
+        </div>
+        <div class="buttons">
+            <!-- Row 1: Memory & Extra -->
+            <button class="text-red" onclick="memoryClear()">mc</button>
+            <button class="text-red" onclick="memoryAdd()">m+</button>
+            <button class="text-red" onclick="memorySub()">m-</button>
+            <button class="text-red" onclick="memoryRecall()">mr</button>
+            
+            <!-- Row 2 -->
+            <button class="text-red" onclick="clearDisplay()">AC</button>
+            <button class="text-red" onclick="backspace()">⌫</button>
+            <button class="text-red" onclick="appendValue('%')">%</button>
+            <button class="operator" onclick="appendValue('/')">÷</button>
+            
+            <!-- Row 3 -->
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button class="operator" onclick="appendValue('*')">×</button>
+            
+            <!-- Row 4 -->
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button class="operator" onclick="appendValue('-')">-</button>
+            
+            <!-- Row 5 -->
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button class="operator" onclick="appendValue('+')">+</button>
+            
+            <!-- Row 6 -->
+            <button onclick="toggleSign()">+/−</button>
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button class="equal" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+        let memory = 0;
+        let isResultShown = false;
+
+        function appendValue(val) {
+            if (isResultShown && !isNaN(val)) {
+                display.value = '';
+                isResultShown = false;
+            }
+            if (display.value === '0' && val !== '.') {
+                display.value = val;
+            } else {
+                display.value += val;
+            }
+        }
+
+        function clearDisplay() {
+            display.value = '0';
+            history.innerText = '';
+        }
+
+        function backspace() {
+            if (display.value.length > 1) {
+                display.value = display.value.slice(0, -1);
+            } else {
+                display.value = '0';
+            }
+        }
+
+        function calculateResult() {
+            try {
+                history.innerText = display.value;
+                // Replace visual operators with JavaScript operators
+                let expression = display.value.replace(/×/g, '*').replace(/÷/g, '/');
+                let result = eval(expression);
+                display.value = result;
+                isResultShown = true;
+            } catch (error) {
+                display.value = 'ত্রুটি';
+            }
+        }
+
+        function toggleSign() {
+            if (display.value !== '0') {
+                if (display.value.startsWith('-')) {
+                    display.value = display.value.slice(1);
+                } else {
+                    display.value = '-' + display.value;
+                }
+            }
+        }
+
+        // Memory Functions (mc, m+, m-, mr)
+        function memoryClear() {
+            memory = 0;
+            alert("মেমোরি ফাকা করা হয়েছে");
+        }
+
+        function memoryAdd() {
+            memory += parseFloat(display.value) || 0;
+        }
+
+        function memorySub() {
+            memory -= parseFloat(display.value) || 0;
+        }
+
+        function memoryRecall() {
+            display.value = memory;
+        }
+    </script>
+
+</body>
+</html>
